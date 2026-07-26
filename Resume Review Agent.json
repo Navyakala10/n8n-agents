@@ -1,0 +1,139 @@
+{
+  "name": "Resume Review Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Resume Review Agent",
+        "formDescription": "Upload your resume and enter your desired job role.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Resume",
+              "fieldType": "file"
+            },
+            {
+              "fieldLabel": "Job Role"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "afdf4d98-009a-40e9-88f7-7dfef8a2283c",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        112
+      ],
+      "webhookId": "d3c26a55-3cd4-469c-b2fa-94901333f7fa"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Resume",
+        "options": {}
+      },
+      "id": "f451e81e-47e9-492c-839f-1b48a967ca26",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the following resume and provide:\n\n1. Overall Resume Score (out of 10)\n\n2. ATS Score (out of 100)\n\n3. Strengths\n\n4. Weaknesses\n\n5. Missing Sections\n\n6. Grammar Errors\n\n7. Formatting Issues\n\n8. Skills that should be added\n\n9. Suggestions for improvement\n\n10. Rewrite weak descriptions professionally.\n\n11. Tailor the resume for the role of {{ $('On form submission').item.json['Job Role'] }}.\n\n\nResume:\n{{ $json.text }}",
+        "options": {
+          "systemMessage": "You are an expert ATS Resume Review Assistant."
+        }
+      },
+      "id": "78cc1e46-27b7-46c4-97eb-fda93d527e55",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "id": "2f530b0f-e39e-4c45-a96c-e1c1facab298",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        336
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "3yG8809sCuBBxvo0",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5f9447ca-4432-4056-a3db-03fbf3716ae2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dda9f238505cbcc3936a8bd5aae99b424384e0de0a2a296500ce274fc951726d"
+  },
+  "nodeGroups": [],
+  "id": "hVvVFFVNRmGJILXx",
+  "tags": []
+}
